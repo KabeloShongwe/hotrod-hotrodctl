@@ -104,7 +104,7 @@ case "$COMMAND" in
         HOTROD_PROJNAME=$(echo $(docker info 2>/dev/null | grep za.co.panoptix.HotrodProj | head -1 | cut -f2 -d'='))    
         CANDIDATES=$(docker images | grep hotrodctl | grep -v hotrodctlkeys | head -1 | awk '{ print $1":"$2; }')
         [ -n "$CANDIDATES" ] && {
-          docker run --name restart_cmd_runner --rm -v /var/run/docker.sock:/var/run/docker.sock:rw -v /var/run/weave/weave.sock:/var/run/weave/weave.sock:rw -e HOTROD_PROJNAME=$HOTROD_PROJNAME -e DOCKER_HOST=unix:///var/run/weave/weave.sock $CANDIDATES svcrestart $1
+          docker run --name restart_cmd_runner_$1 --rm -v /var/run/docker.sock:/var/run/docker.sock:rw -v /var/run/weave/weave.sock:/var/run/weave/weave.sock:rw -e HOTROD_PROJNAME=$HOTROD_PROJNAME -e DOCKER_HOST=unix:///var/run/weave/weave.sock $CANDIDATES svcrestart $1
         }
         ;;
     enter)
