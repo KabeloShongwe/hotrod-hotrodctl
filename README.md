@@ -14,13 +14,9 @@ Weave
 Could be launch with a docker-compose file looking like:
 
     hotrodctl:
-      extends:
-        file: common-services.yml
-        service: hotrod-core
       image: panoptix/hotrod-hotrodctl:release-v0.2.0
       environment:
-        - constraint:master==true 
-        - HOTROD_PROJNAME=HotrodDev         
+        - HOTROD_PROJNAME=${PROJECT_NAME}
         - WEAVE_PASSWORD=${WEAVE_PASSWORD}
       net: host
       restart: always
@@ -29,7 +25,7 @@ Could be launch with a docker-compose file looking like:
         - /var/run/docker.sock:/var/run/docker.sock
         - /var/run/weave:/var/run/weave
       labels:
-        za.co.panoptix.hotrod.projectname: "HotrodDev"
+        za.co.panoptix.hotrod.projectname: "${PROJECT_NAME}"
         
 ### Labels
 
