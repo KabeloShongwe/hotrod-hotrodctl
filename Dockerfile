@@ -8,7 +8,9 @@ RUN apt-get update && apt-get -y install \
 RUN curl --proxy-ntlm -sSL https://get.docker.com/gpg | sudo apt-key add -
 RUN curl --proxy-ntlm -sSL https://get.docker.com/ | sh
 
-#Install Docker Compose
+#Install Weave
+RUN curl -L https://github.com/weaveworks/weave/releases/download/latest_release/weave > /usr/local/bin/weave && \
+    chmod u+x /usr/local/bin/weave
 
 ADD hotrodctl /usr/bin/hotrodctl
 ENTRYPOINT ["/usr/bin/hotrodctl"]

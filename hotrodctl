@@ -29,11 +29,16 @@ declare -a RUNLEVELS=("core" "0" "1" "2")
 supervise() {
   CANDIDATES=$(docker ps -a --format '{{.Names}}' --filter name=weaveproxy --filter status=exited -q)
   [ -n "$CANDIDATES" ] && {
-    CANDIDATES=$(docker ps -a --format '{{.Names}}' --filter name=wproxy --filter status=exited -q)
-    [ -n "$CANDIDATES" ] && {
-      echo "Start weave..."
-      docker start $CANDIDATES
-    }
+#     CANDIDATES=$(docker ps -a --format '{{.Names}}' --filter name=wproxy --filter status=exited -q)
+#     [ -n "$CANDIDATES" ] && {
+#       echo "Start weave..."
+#       docker start $CANDIDATES
+#     }
+#   WEAVE_PASSWORD=$(echo $(cat ./default.yml | grep weave_shared_secret | cut -d":" -f2))
+    set +o history
+    /usr/local/bin/weave launch-router --ipalloc-range 169.254.0.0/16 --password $WEAVE_PASSWORD
+    set -o history  
+    /usr/local/bin/weave launch-proxy --no-default-ipalloc --no-rewrite-hosts --without-dns -H /var/run/weave/weave.sock -H 0.0.0.0:12345 --tlsverify --tlscacert /etc/docker/ca.pem --tlscert /etc/docker/server.pem --tlskey /etc/docker/server-key.pem
   }
   
   while true; do
