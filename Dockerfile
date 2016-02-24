@@ -9,7 +9,7 @@ RUN curl --proxy-ntlm -sSL https://get.docker.com/gpg | sudo apt-key add -
 RUN curl --proxy-ntlm -sSL https://get.docker.com/ | sh
 
 #Install Weave
-RUN curl -L https://github.com/weaveworks/weave/releases/download/latest_release/weave > /usr/local/bin/weave && \
+RUN curl -L https://github.com/weaveworks/weave/releases/download/v1.3.1/weave > /usr/local/bin/weave && \
     chmod u+x /usr/local/bin/weave
 
 ADD hotrodctl /usr/bin/hotrodctl
