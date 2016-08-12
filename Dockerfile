@@ -1,6 +1,6 @@
 FROM ubuntu:14.04.4
 
-ENV REFRESHED_ON "21 June 2016"
+ENV REFRESHED_ON "12 June 2016"
 
 RUN apt-get update
 RUN apt-get install -y \
