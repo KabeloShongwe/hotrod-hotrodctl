@@ -80,6 +80,47 @@ svcrestart() {
   }
 }
 
+hotrod_diag(){
+
+  cpuUsageM=$(grep 'cpu ' /proc/stat | awk '{cpu_usage=($2+$4)*100/($2+$4+$5)} END {print cpu_usage }')
+  LoadAverage1=$(uptime | perl -pe 's|.+?load\saverage:\s+(?P<one_min>[^,]+),\s+(?P<five_min>[^,]+),\s+(?P<fifteen_min>.+)|\1|')
+  memTotalM=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
+  memTotal1=$memTotalM
+  memTotalM=$(echo "scale=1; $memTotal1 / 1024" | bc)
+  memUsageM=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
+  memUsageM=$(echo "scale=1; ($memTotal1 - $memUsageM) / 1024" | bc | sed 's/^\./0./')
+  memUsagei=$(echo "scale=1; (100/$memTotalM) * $memUsageM" | bc | sed 's/^\./0./')
+  uptimerecord=$(uptime -p)
+
+  conatiner_health=$(docker stats --no-stream --format "table {{.Name}}:\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}\t{{.MemPerc}}")
+  running_conatiner=$(docker ps -a -f status=running | wc -l)
+  stopped_container=$(docker ps -a -f status=exited)
+  datadog=$(docker ps -a -q --format '{{.Names}}' --filter name=docker-dd-agent)
+  jobrunner=$(docker ps -a -q --format '{{.Names}}' --filter name=netopsjobs)
+  datadogstatus=$(docker exec -it $datadog /etc/init.d/datadog-agent info)
+  sysctl=$(sysctl vm.max_map_count)
+
+  echo "" 
+  echo "[Hotrod Health Check]"
+  echo "UPTIME: $uptimerecord"
+  echo "CPU USAGE: $cpuUsageM"
+  echo "LOAD AVERAGE: $LoadAverage1"
+  echo "TOTAL MEMORY: $memTotalM"
+  echo "MEMORY USAGE: $memUsageM"
+  echo "SYSCTL: $sysctl"
+
+  echo ""
+  echo "[Hotrod Container Check]"
+  echo "All conatainters are installed and running"
+  echo "$conatiner_health"
+  echo ""
+  echo "Containers not running(including exited=0)"
+  echo "$stopped_container"
+  echo ""
+  echo "[Datadog Status Report]"
+  echo "$datadogstatus"
+}
+
 
 #Setup hotrodctl
 [ -n "$HOTROD_PROJNAME" ] && {
@@ -125,6 +166,9 @@ case "$COMMAND" in
         [ -n "$CANDIDATES" ] &&  {
           docker exec $INTERACTIVE $(echo $CANDIDATES | cut -f1 -d' ') "$COMMAND"
         }
+        ;;
+    diag)
+       hotrod_diag
         ;;     
     *)
         echo "Unknown hotrodctl command '$COMMAND'" >&2
